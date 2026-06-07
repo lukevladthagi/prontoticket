@@ -1,3 +1,7 @@
+import ClientPage from "./login/client-page";
+
+export const dynamic = "force-dynamic";
+
 export default function Page() {
-  return null;
+  return <ClientPage />;
 }
