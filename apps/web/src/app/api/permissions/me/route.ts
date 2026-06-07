@@ -23,13 +23,14 @@ export async function GET(req: Request) {
   if (!user) return unauthorized();
 
   const profileRows = await sql`
-    SELECT perfil
+    SELECT perfil, setor_id
     FROM user_profiles
     WHERE user_id = ${user.id}
     LIMIT 1
   `;
 
   const perfil = profileRows[0]?.perfil || "solicitante";
+  const setorId = Number(profileRows[0]?.setor_id || 0);
   const permissions = { ...(DEFAULT_PERMISSIONS[perfil] || DEFAULT_PERMISSIONS.solicitante) };
 
   if (perfil === "admin") {
@@ -50,6 +51,10 @@ export async function GET(req: Request) {
     }
   } catch (error) {
     console.warn("Permissões dinâmicas indisponíveis; usando permissões padrão.", error);
+  }
+
+  if (setorId === 1) {
+    permissions.gamificacao = true;
   }
 
   return Response.json({ perfil, permissions });
