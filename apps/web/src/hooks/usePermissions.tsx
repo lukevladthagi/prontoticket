@@ -33,6 +33,7 @@ export function usePermissions() {
   const can = (permission: string): boolean => {
     // Admin always has access to everything
     if (profile?.perfil === 'admin') return true;
+    if (permissions['*'] === true) return true;
     
     // Check the permission
     return permissions[permission] === true;

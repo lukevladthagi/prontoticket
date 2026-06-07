@@ -35,7 +35,7 @@ export default function AuthCallbackPage() {
           }
           
           setMessage("Conta vinculada com sucesso!");
-          setTimeout(() => navigate("/dashboard"), 1000);
+          setTimeout(() => navigate("/"), 1000);
         } else if (whatsappPhone) {
           setMessage("Vinculando sua conta do WhatsApp...");
           
@@ -51,9 +51,9 @@ export default function AuthCallbackPage() {
           }
           
           setMessage("Conta vinculada com sucesso!");
-          setTimeout(() => navigate("/dashboard"), 1000);
+          setTimeout(() => navigate("/"), 1000);
         } else {
-          navigate("/dashboard");
+          navigate("/");
         }
       } catch (error) {
         console.error("Erro na autenticação:", error);

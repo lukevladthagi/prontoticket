@@ -3,18 +3,25 @@
 import { useEffect } from "react";
 import { useNavigate } from "@/lib/router-shim";
 import { useAuth } from "@/lib/auth-shim";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 export default function HomePage() {
   const { user, isPending, redirectToLogin } = useAuth();
+  const { profile, loading: profileLoading } = useUserProfile();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate("/dashboard");
-    }
-  }, [user, navigate]);
+    if (!user || profileLoading) return;
 
-  if (isPending) {
+    if (profile?.perfil === "admin" || profile?.perfil === "gestor" || profile?.perfil === "tecnico") {
+      navigate("/dashboard");
+      return;
+    }
+
+    navigate("/chamados/novo");
+  }, [user, profile, profileLoading, navigate]);
+
+  if (isPending || (user && profileLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
