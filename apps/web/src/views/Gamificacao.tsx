@@ -142,24 +142,6 @@ export default function Gamificacao() {
   const [abaDetalhamento, setAbaDetalhamento] = useState<'tickets' | 'avaliacoes'>('tickets');
   const [mostrarRegras, setMostrarRegras] = useState(false);
   
-  // Verificar se usuário é do setor TI (id = 1)
-  if (profile && profile.setor_id !== 1) {
-    return (
-      <Layout>
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-8 text-center">
-            <Trophy className="mx-auto mb-4 text-yellow-600 dark:text-yellow-500" size={48} />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Gamificação disponível apenas para TI
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              O sistema de gamificação está disponível exclusivamente para membros do setor de Tecnologia da Informação.
-            </p>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
   const [ranking, setRanking] = useState<RankingUsuario[]>([]);
   const [meusPontos, setMeusPontos] = useState<RankingUsuario | null>(null);
   const [historico, setHistorico] = useState<HistoricoPonto[]>([]);
@@ -489,6 +471,24 @@ export default function Gamificacao() {
           <div className="h-64 bg-gray-200 rounded"></div>
         </div>
       </div>
+    );
+  }
+
+  if (profile && profile.setor_id !== 1 && profile.perfil !== 'admin') {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-8 text-center">
+            <Trophy className="mx-auto mb-4 text-yellow-600 dark:text-yellow-500" size={48} />
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Gamificação disponível apenas para TI
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              O sistema de gamificação está disponível para membros do setor de Tecnologia da Informação e administradores.
+            </p>
+          </div>
+        </div>
+      </Layout>
     );
   }
 
