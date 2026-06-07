@@ -1,0 +1,76 @@
+{
+  "contracts": [
+    {
+      "id": "GET /api/oauth/google/redirect_url",
+      "kind": "hono-route",
+      "method": "GET",
+      "sourcePath": "/api/oauth/google/redirect_url",
+      "nextRoutePath": "oauth/google/redirect_url",
+      "expectedFilePath": "apps/web/src/app/api/oauth/google/redirect_url/route.ts",
+      "evidence": "app.get(\"/api/oauth/google/redirect_url\", async (c) => {"
+    },
+    {
+      "id": "POST /api/sessions",
+      "kind": "hono-route",
+      "method": "POST",
+      "sourcePath": "/api/sessions",
+      "nextRoutePath": "sessions",
+      "expectedFilePath": "apps/web/src/app/api/sessions/route.ts",
+      "evidence": "app.post(\"/api/sessions\", async (c) => {"
+    },
+    {
+      "id": "GET /api/users/me",
+      "kind": "hono-route",
+      "method": "GET",
+      "sourcePath": "/api/users/me",
+      "nextRoutePath": "users/me",
+      "expectedFilePath": "apps/web/src/app/api/users/me/route.ts",
+      "evidence": "app.get(\"/api/users/me\", authMiddleware, async (c) => {"
+    },
+    {
+      "id": "GET /api/logout",
+      "kind": "hono-route",
+      "method": "GET",
+      "sourcePath": "/api/logout",
+      "nextRoutePath": "logout",
+      "expectedFilePath": "apps/web/src/app/api/logout/route.ts",
+      "evidence": "app.get(\"/api/logout\", async (c) => {"
+    },
+    {
+      "id": "GET /api/twilio-test",
+      "kind": "hono-route",
+      "method": "GET",
+      "sourcePath": "/api/twilio-test",
+      "nextRoutePath": "twilio-test",
+      "expectedFilePath": "apps/web/src/app/api/twilio-test/route.ts",
+      "evidence": "app.get(\"/api/twilio-test\", async (c) => {"
+    },
+    {
+      "id": "GET /api/processar-recorrentes-manual",
+      "kind": "hono-route",
+      "method": "GET",
+      "sourcePath": "/api/processar-recorrentes-manual",
+      "nextRoutePath": "processar-recorrentes-manual",
+      "expectedFilePath": "apps/web/src/app/api/processar-recorrentes-manual/route.ts",
+      "evidence": "app.get(\"/api/processar-recorrentes-manual\", async (c) => {"
+    },
+    {
+      "id": "GET /api/debug-recorrentes",
+      "kind": "hono-route",
+      "method": "GET",
+      "sourcePath": "/api/debug-recorrentes",
+      "nextRoutePath": "debug-recorrentes",
+      "expectedFilePath": "apps/web/src/app/api/debug-recorrentes/route.ts",
+      "evidence": "app.get(\"/api/debug-recorrentes\", async (c) => {"
+    },
+    {
+      "id": "GET /api/test-twilio",
+      "kind": "hono-route",
+      "method": "GET",
+      "sourcePath": "/api/test-twilio",
+      "nextRoutePath": "test-twilio",
+      "expectedFilePath": "apps/web/src/app/api/test-twilio/route.ts",
+      "evidence": "app.get(\"/api/test-twilio\", async (c) => {"
+    }
+  ]
+}

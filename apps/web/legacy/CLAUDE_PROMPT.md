@@ -1,0 +1,22 @@
+You are converting a Cloudflare Workers + Hono application to Next.js App Router route handlers running on the Anything V2 platform (Next.js 16, Neon Postgres, platform uploads, better-auth).
+
+Constraints:
+- Place each route handler at apps/web/src/app/api/<path>/route.ts. Match the original Hono path EXACTLY. Path params like "/users/:id" become "/users/[id]".
+- Replace D1 calls (c.env.DB.prepare(...).first / all / run) with the sql template tag from @neondatabase/serverless. Import via: `import sql from "@/app/api/utils/sql";`. Convert SQLite parameter placeholders (?) to Postgres tagged-template substitution. Convert SQLite-only functions (date, datetime, GLOB, ON CONFLICT clauses, etc.) to Postgres equivalents.
+- Replace R2 (c.env.R2_BUCKET) with Anything's platform upload contract, not raw object-storage credentials. Do not import @aws-sdk/client-s3, do not create S3/R2 clients, and do not read AWS_* / S3_* env vars in generated app code.
+  - For user-selected file uploads, prefer moving the frontend call site to apps/web/src/utils/useUpload.ts and then POST the returned public URL/mimeType/filename to the app's API route for DB persistence.
+  - If preserving an existing multipart API route is lower risk, that route may forward the File to the same-origin internal upload endpoint: fetch(new URL("/_create/api/upload", req.url), { method: "POST", body: formData }). Store the returned public URL (and mimeType/externalId when useful) in Postgres.
+  - For routes that previously served R2 objects by key, treat migrated DB values as public URLs when possible and redirect/fetch that URL. The import pipeline rewrites known Mocha R2 keys/URLs to Anything upload URLs.
+  - For delete flows, remove the DB reference; do not attempt direct object deletion from generated app code.
+- Generated files under apps/web/src/** must not reference Cloudflare runtime bindings or types: no `c.env.DB`, `c.env.KV`, `c.env.R2`, `env.DB`, `env["DB"]`, `D1Database`, `R2Bucket`, `KVNamespace`, or `ExecutionContext`. These may remain only in apps/web/legacy/** reference files.
+- Next.js/lib.dom types are stricter than Mocha's Workers runtime for binary payloads. Do not pass Uint8Array values directly to Response, Blob, or web-push APIs. For downloads use `new Response(new Blob([bytes as BlobPart]), ...)`; for `new Blob([...])` cast the Uint8Array element as BlobPart; for web-push payloads use `Buffer.from(payload)`.
+- Replace Mocha auth (`@getmocha/users-service/backend` — getCurrentUser, MOCHA_SESSION_TOKEN_COOKIE_NAME, exchangeCodeForSessionToken, etc.) with better-auth: `import { auth } from "@/lib/auth"`. Use `await auth.api.getSession({ headers: req.headers })` to fetch the session.
+- Drop ad-hoc CORS, rate limiting, scraper-blocking middleware. Next.js + the platform handle these.
+- Drop the in-memory caches (`settingsCache`, `featuredManhwasCache`, etc.). Use Next.js fetch caching or unstable_cache where the original cache TTL was material; otherwise just hit Postgres.
+- Don't try to be exhaustive in one shot. If the worker is large, split route groups into separate route.ts files and keep each file under ~500 lines. Shared helpers (auth middleware, error response shape, pagination utilities) go under apps/web/src/app/api/_helpers/.
+- Next.js treats dynamic segment names at the same path depth as the same route. Do not emit two handlers that only differ by parameter names (for example /trips/[id]/bookings and /trips/[trip_id]/bookings, or /user-vehicles/[id] and /user-vehicles/[user_id]). Consolidate those into one route.ts and normalize the code to one param name.
+- Booleans: the Postgres schema demotes BOOLEAN to INTEGER (0/1) so existing data round-trips. Keep that contract — compare with `= 1` / `= 0` rather than `= true`.
+- Asset URLs in the database have already been rewritten from R2 hosts to Anything upload URLs by the import pipeline; treat the URLs in the DB as authoritative.
+- Admin settings, notification toggles, card/list management, and similar dashboard controls must stay persistent. If the Hono worker read or wrote these values from D1, port both the read and write handlers to Postgres. Do not replace them with component-local state, in-memory defaults, or freshly scaffolded empty cards that ignore migrated rows.
+
+Output format: emit a JSON document of `{ files: Array<{ path, content }> }` plus an optional `notes` array listing things that need human attention (auth flow gaps, business logic that doesn't translate cleanly, dropped Cloudflare-specific features).
