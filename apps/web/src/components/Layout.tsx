@@ -54,6 +54,15 @@ export default function Layout({ children }: LayoutProps) {
   const { theme, toggleTheme } = useTheme();
   const { can } = usePermissions();
   const { profile, loading } = useUserProfile();
+  const isAdmin = profile?.perfil === "admin";
+  const isSetorTi = Number(profile?.setor_id) === 1;
+  const canAccess = (permission?: string) => {
+    if (!permission) return true;
+    if (permission === "gamificacao") {
+      return !loading && (isAdmin || isSetorTi || can(permission));
+    }
+    return can(permission);
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -111,8 +120,8 @@ export default function Layout({ children }: LayoutProps) {
   // Filter navigation based on permissions
   // Aguarda o perfil carregar antes de filtrar por setor
   const navigation = allNavigation.filter(item => {
-    // Gamificação só para setor TI (id = 1) - mas só filtra se o perfil já estiver carregado
-    if (item.name === "Gamificação" && !loading && profile?.setor_id !== 1) {
+    // Gamificacao fica disponivel para admins e para usuarios do setor TI.
+    if (item.permission === "gamificacao" && !canAccess("gamificacao")) {
       return false;
     }
     
@@ -121,8 +130,7 @@ export default function Layout({ children }: LayoutProps) {
       return false;
     }
     
-    if (!item.permission) return true;
-    return can(item.permission);
+    return canAccess(item.permission);
   }).map(item => {
     if (item.submenu) {
       return {
@@ -132,8 +140,10 @@ export default function Layout({ children }: LayoutProps) {
           if (subItem.name === "Senhas TI" && !loading && profile?.setor_id !== 1) {
             return false;
           }
-          if (!subItem.permission) return true;
-          return can(subItem.permission);
+          if (subItem.permission === "gamificacao") {
+            return canAccess("gamificacao");
+          }
+          return canAccess(subItem.permission);
         })
       };
     }
@@ -343,3 +353,4 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   );
 }
+
